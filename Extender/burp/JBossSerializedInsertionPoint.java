@@ -3,7 +3,7 @@
 	
 	v0.1 (12/2/2015)
 	
-	Custom insertion point for Java Serialization Remote Code Execution, specifically against the JBoss platform. Accepts a serialized object containing
+	Custom insertion point for Java Deserialization Remote Code Execution, specifically against the JBoss platform. Accepts a serialized object containing
 	an operating system command from ysoserial and generates a POST request containing the object.
 */
 
