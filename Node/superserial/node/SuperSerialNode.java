@@ -1,7 +1,8 @@
 /*
 	SuperSerialNode.java
 	
-	v0.1 (12/2/2015)
+	//PUT CORRECT VERSION/DATE HERE
+	v0.2.1 (1/25/2016)
 	
 	Node for SuperSerial Active Scan check to use. The active scan check will first make a GET request to the /queue context which will create a new custom
 	context with a randomly-generated path, which will be returned in a JSON object in the response. The Active Scan check will then attempt to force a target
@@ -27,6 +28,7 @@ public class SuperSerialNode {
 	private String token;
 	private SecureRandom sr;
 	private ArrayList<String> contextList;
+	private String dir;
 	
 	private static final int DEFAULT_PORT = 15050;
 	
@@ -47,6 +49,14 @@ public class SuperSerialNode {
 		}
 		sr = new SecureRandom();
 		token = generateGUID();
+		
+		//create directory to store uploaded files/access entries (if not already created)
+		dir = System.getProperty("java.io.tmpdir")+"SuperSerial"+System.getProperty("file.separator");
+		File targetDir = new File(dir);
+		if(!targetDir.exists()) {
+			targetDir.mkdir();
+		}
+		
 		contextList = new ArrayList<String>(10);
 		hs.createContext("/queue",new QueueHandler());
 		hs.createContext("/heartbeat",new HeartbeatHandler());
@@ -54,9 +64,9 @@ public class SuperSerialNode {
 	}
 	
 	private void printSessionInfo() {
-		System.out.println("Uploaded File/Access Entry Directory: "+System.getProperty("java.io.tmpdir"));
-		System.out.println("Node started on HTTP"+(https ? "S" : "")+" port "+port);
-		System.out.println("Node Authentication Token for this session: "+token);
+		System.err.println("Uploaded File/Access Entry Directory: "+dir);
+		System.err.println("Node started on HTTP"+(https ? "S" : "")+" port "+port);
+		System.err.println("Node Authentication Token for this session: "+token);
 	}
 	
 	//dynamically create new context when requested
@@ -64,7 +74,6 @@ public class SuperSerialNode {
 		if(path.charAt(0)!='/') path = "/"+path;
 		hs.createContext(path,new SuperSerialNodeHttpHandler(token,path));
 		contextList.add(path);
-		System.out.println(path+" context added!");
 	}
 	
 	//dynamically remove existing context when requested
@@ -74,7 +83,7 @@ public class SuperSerialNode {
 	
 	//convert byte array to hexadecimal string
 	private String bytesToHex(byte[] bytes) {
-		char[] hexArray = "0123456789ABCDEF".toCharArray();
+		final char[] hexArray = "0123456789ABCDEF".toCharArray();
 		char[] hexChars = new char[bytes.length*2];
 		for(int j=0;j<bytes.length;j++){
 			int v =bytes[j] & 0xFF;
@@ -127,15 +136,15 @@ public class SuperSerialNode {
 						os.write(jsonReturn.getBytes());
 						os.flush();
 						os.close();
-						System.err.println("Queue request from "+exchange.getRemoteAddress().getHostString()+" succeeded");
+						SuperSerialNodeHelper.printLogEntry("Queue request from "+exchange.getRemoteAddress().getHostString()+" succeeded, "+context+" context added!");
 					} else {
-						System.err.println("Queue request from "+exchange.getRemoteAddress().getHostString()+" rejected (wrong authentication token)");
+						SuperSerialNodeHelper.printLogEntry("Queue request from "+exchange.getRemoteAddress().getHostString()+" rejected (wrong authentication token)");
 						exchange.sendResponseHeaders(401,-1);
 						os = exchange.getResponseBody();
 						os.close();
 					}
 				} else {
-					System.err.println("Queue request from "+exchange.getRemoteAddress().getHostString()+" rejected (wrong method)");
+					SuperSerialNodeHelper.printLogEntry("Queue request from "+exchange.getRemoteAddress().getHostString()+" rejected (wrong method)");
 					exchange.sendResponseHeaders(405,-1);
 					os = exchange.getResponseBody();
 					os.close();
@@ -171,12 +180,12 @@ public class SuperSerialNode {
 					os.write(jsonReturn.getBytes());
 					os.flush();
 					os.close();
-					System.err.println("Heartbeat request from "+exchange.getRemoteAddress().getHostString()+" succeeded");
+					SuperSerialNodeHelper.printLogEntry("Heartbeat request from "+exchange.getRemoteAddress().getHostString()+" succeeded");
 				} else {
 					//exchange.getRequestBody().close();
 					exchange.sendResponseHeaders(401,-1);
 					exchange.getResponseBody().close();
-					System.err.println("Heartbeat request from "+exchange.getRemoteAddress().getHostString()+" rejected (wrong authentication token)");
+					SuperSerialNodeHelper.printLogEntry("Heartbeat request from "+exchange.getRemoteAddress().getHostString()+" rejected (wrong authentication token)");
 				}
 			} catch(IOException ioe) {
 				ioe.printStackTrace();

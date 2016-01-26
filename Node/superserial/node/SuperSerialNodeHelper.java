@@ -1,7 +1,8 @@
 /*
 	SuperSerialNodeHelper.java
 	
-	v0.1 (12/2/2015)
+	//PUT CORRECT VERSION/DATE HERE
+	v0.2.1 (1/25/2016)
 	
 	Class containing static methods to assist in various aspects of processing throughout the SuperSerial node.
 */
@@ -9,10 +10,11 @@
 package superserial.node;
 
 import java.util.*;
+import java.text.SimpleDateFormat;
 
 public class SuperSerialNodeHelper {
 	
-	//parses URL parameters (token and write), DOES NOT support multiple parameters of same name (only first occurrence will be used)
+	//parses URL parameters (token and write), DOES NOT support multiple parameters of same name (only first occurrence from left will be used)
 	public static Hashtable<String,String> parseURLParams(String query) {
 		Hashtable<String,String> params = null;
 		if(query!=null) {
@@ -37,5 +39,10 @@ public class SuperSerialNodeHelper {
 		}
 		return params;
 	}
-
+	
+	public static void printLogEntry(String message) {
+		Date now = new Date();
+		SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
+		System.err.println(sdf.format(now)+": "+message);
+	}
 }

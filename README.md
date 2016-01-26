@@ -58,14 +58,72 @@ SuperSerial-Active consists of two components, an extender to be loaded into Bur
 * JSON for Java (for properly creating and parsing JSON in extender and Node): https://github.com/douglascrockford/JSON-java (included in release superserial-active-[VERSION].jar and SuperSerialNode-[VERSION].jar files, version 20151123 at time of writing)
 
 ## Extender Building Instructions:
-COMING SOON!
+Requires Java Development Kit 7 or higher
 
-Extender written by Jeff Cap
+1. Choose folder to use for building (these instructions will use c:\test)
+
+2. Create the following directories (case-sensitive):
+
+	* c:\test\api
+	
+	* c:\test\build-extender
+	
+	* c:\test\build-node
+	
+3. Download the SuperSerial-Active master source zip and extract to folder c:\test (SuperSerial-Active-master folder and subfolders will be created)
+
+4. Download the Burp Extender interface files
+
+	a. Launch Burp Suite and navigate to the Extender->APIs tab
+	
+	b. Click 'Save interface files' button
+	
+	c. In the save prompt, navigate to c:\test\api and click 'Save'
+	
+5. Create directory (case sensitive): c:\test\api\org
+
+6. Download "JSON for Java" (https://github.com/douglascrockford/JSON-java) master source zip and extract to folder: c:\test\api\org
+
+7. Rename newly extracted folder (JSON-java-[version]) to (case-sensitive): json
+
+8. Copy all contents of c:\test\api into: c:\test\SuperSerial-Active\Extender, overwrite any duplicate files
+
+9. Copy folder c:\test\api\org into: c:\test\SuperSerial-Active\Node, overwrite any duplicate files
+
+10. Remove folder c:\test\api, it is no longer needed
+
+11. Download latest ysoserial (https://github.com/frohoff/ysoserial) release jar (ysoserial-0.0.2-all.jar at time of writing) to c:\test
+
+12. Extract ysoserial jar to c:\test\build-extender folder:
+
+	a. In a terminal window, navigate to c:\test\build-extender
+	
+	b. Execute command: jar xvf ../ysoserial-[release].jar
+	
+13. To build the SuperSerial-Active Extender, do the following (this will create file c:\test\superserial-active.jar):
+
+	a. In a terminal window, navigate to c:\test
+	
+	b. execute command: javac -cp build-extender -d build-extender -sourcepath SuperSerial-Active-master/Extender SuperSerial-Active-master/Extender/burp/*.java
+	
+	c. execute command: jar vcf superserial-active.jar -C build-extender . -C SuperSerial-Active-master/Extender licenses/JSON-LICENSE.txt -C SuperSerial-Active-master/Extender licenses/YSOSERIAL-LICENSE.txt
+	
+14. To build the SuperSerial Node, do the following (this will create file c:\test\SuperSerialNode.jar):
+
+	a. In a terminal window, navigate to c:\test
+	
+	b. execute command: javac -d build-node -sourcepath SuperSerial-Active-master/Node SuperSerial-Active-master/Node/superserial/node/*.java
+	
+	c. execute command: jar vcfm SuperSerialNode.jar SuperSerial-Active-master/Node/MF.TXT -C build-node . -C SuperSerial-Active-Master/Node JSON-LICENSE.txt
+
 
 ## Disclaimer:
 This software is only intended to be used against systems the user explicitly owns or has authorization to test/attack. The developers provide the software for free without warranty, and assume no responsibility for any damage caused to systems by misusing the software. It is the responsibility of the user to abide by all local, state and federal laws while using the software.
 
 ## License:
+Extender written by Jeff Cap
+Copyright (C) 2015 DirectDefense, Inc.
+
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 
 This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
