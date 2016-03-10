@@ -1,0 +1,184 @@
+/*
+	ConnectionSettingsTab.java
+	
+	v0.3 (3/10/2016)
+	
+	UI Component for the "Node Connection Settings" configuration tab under the SuperSerial tab. Allows the user to set the necessary Node connection settings (node host, node 
+	port, node protocol (HTTP/HTTPS), and node authentication token). Also allows the user to test the connection from the SuperSerial-Active extender to the Node (user must 
+	test connection at least once in order to successfully set node connection settings).
+*/
+
+package superserial.ui;
+
+import javax.swing.JPanel;
+import javax.swing.JLabel;
+import javax.swing.JTextField;
+import javax.swing.JCheckBox;
+import javax.swing.JButton;
+import javax.swing.SwingConstants;
+import java.awt.GridLayout;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+
+import burp.IBurpExtenderCallbacks;
+import burp.IExtensionHelpers;
+import burp.IHttpService;
+import burp.IHttpRequestResponse;
+import burp.IResponseInfo;
+import superserial.settings.SuperSerialSettings;
+
+class ConnectionSettingsTab extends JPanel {
+	//UI fields
+	private JTextField hostField;
+	private JTextField portField;
+	private JCheckBox protocolField;
+	private JTextField tokenField;
+	private JButton testConnButton;
+	private JLabel statusLabel;
+	
+	//data fields
+	private IBurpExtenderCallbacks callbacks;
+	private IExtensionHelpers helpers;
+	
+	//constants
+	static final int INVALID_HOST_CODE = 0;
+	static final int INVALID_PORT_CODE = 1;
+	static final int INVALID_TOKEN_CODE = 2;
+	static final int CONN_ERROR_CODE = 3;
+	static final int AUTH_ERROR_CODE = 4;
+	
+	
+	ConnectionSettingsTab(IBurpExtenderCallbacks cb) {
+		super(new GridLayout(5,2));
+		
+		SuperSerialSettings settings = SuperSerialSettings.getInstance();
+		
+		add(new JLabel("Node Host:",SwingConstants.RIGHT));
+		hostField = new JTextField(settings.getNodeHost());
+		add(hostField);
+		add(new JLabel("Node Port:",SwingConstants.RIGHT));
+		portField = new JTextField(Integer.toString(settings.getNodePort()));
+		add(portField);
+		add(new JLabel("Use HTTPS (not yet supported):",SwingConstants.RIGHT));
+		protocolField = new JCheckBox((String) null,settings.getNodeHttps());
+		protocolField.setEnabled(false);
+		add(protocolField);
+		add(new JLabel("Node Token (XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX):",SwingConstants.RIGHT));
+		tokenField = new JTextField(settings.getNodeToken());
+		add(tokenField);
+		testConnButton = new JButton("Test Node Connection");
+		
+		ActionListener connAL = new ActionListener() {
+			public void actionPerformed(ActionEvent ae) {
+				
+				Thread connTestThread = new Thread(new Runnable() {
+					public void run() {
+						String host = hostField.getText();
+						if(host==null) {
+							setStatusError(INVALID_HOST_CODE);
+							return;
+						} else {
+							host = host.trim();
+							if(host.isEmpty()) {
+								setStatusError(INVALID_HOST_CODE);
+								return;
+							}
+						}
+						
+						int port = -1;
+						try {
+							port = Integer.parseInt(portField.getText().trim());
+							if((port<1) || (port>65535)) { //specified port is out of range
+								setStatusError(INVALID_PORT_CODE);
+								return;
+							}
+						} catch(Exception e) { //specified port is non-numeric
+							setStatusError(INVALID_PORT_CODE);
+							return;
+						}
+						
+						//When implemented, parse HTTPS options here
+						boolean https = protocolField.isSelected();
+					
+						String tk = tokenField.getText().trim();
+						if(!tk.matches("^[a-fA-F0-9\\-]*$")) { //TODO: update regex to validate 8-4-4-4-12 GUIDs
+							setStatusError(INVALID_TOKEN_CODE);
+							return;
+						}
+						
+						statusLabel.setBackground(Color.YELLOW);
+						statusLabel.setForeground(Color.BLACK);
+						statusLabel.setText("Testing connection...");
+						
+						IHttpService httpService = helpers.buildHttpService(host,port,https);
+						byte[] req = ("GET /heartbeat?token="+tk+" HTTP/1.1\r\nHost: "+host+":"+Integer.toString(port)+"\r\n\r\n").getBytes(); //consider replacing with function call
+						IHttpRequestResponse heartbeatRR = callbacks.makeHttpRequest(httpService,req);
+						byte[] resp = heartbeatRR.getResponse();
+						IResponseInfo respInfo = null;
+						if(resp!=null) //checking for a request failure/timeout
+							respInfo = helpers.analyzeResponse(resp);
+						if((resp!=null) && (respInfo!=null)) {
+							if(respInfo.getStatusCode()==200) {
+								statusLabel.setBackground(Color.GREEN);
+								statusLabel.setForeground(Color.BLACK);
+								statusLabel.setText("Connection to http"+(https ? "s" : "")+"://"+host+":"+Integer.toString(port)+" successful!");
+								
+								SuperSerialSettings settings = SuperSerialSettings.getInstance();
+								settings.setNodeSettings(host,port,https,tk);
+							} else {
+								setStatusError(AUTH_ERROR_CODE,host,port,https,false);
+							}
+						} else {
+							setStatusError(CONN_ERROR_CODE,host,port,https,false);
+						}
+					}
+				});
+				connTestThread.start();
+			}
+		};
+		tokenField.addActionListener(connAL);
+		testConnButton.addActionListener(connAL);
+		
+		add(testConnButton);
+		statusLabel = new JLabel("Node settings unintialized");
+		statusLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		statusLabel.setOpaque(true);
+		statusLabel.setForeground(Color.WHITE);
+		statusLabel.setBackground(Color.RED);
+		statusLabel.setFont(new Font(statusLabel.getFont().getFontName(),Font.BOLD,statusLabel.getFont().getSize()));
+		add(statusLabel);
+		
+		callbacks = cb;
+		helpers = cb.getHelpers();
+	}
+	
+	void setStatusError(int errCode) {
+		setStatusError(errCode,null,-1,false,false);
+	}
+	
+	void setStatusError(int errCode,String host,int port,boolean https,boolean scan) {
+		switch(errCode) {
+			case INVALID_HOST_CODE:
+				statusLabel.setText("Invalid Node Host specified!");
+				break;
+			case INVALID_PORT_CODE:
+				statusLabel.setText("Invalid Node Port specified!");
+				break;
+			case INVALID_TOKEN_CODE:
+				statusLabel.setText("Invalid Node Token specified!");
+				break;
+			case CONN_ERROR_CODE:
+				statusLabel.setText("Connection to http"+(https ? "s" : "")+"://"+host+":"+Integer.toString(port)+" failed"+(scan ? " during scanning" : "")+"!!! (connection error/timeout)");
+				break;
+			case AUTH_ERROR_CODE:
+				statusLabel.setText("Connection to http"+(https ? "s" : "")+"://"+host+":"+Integer.toString(port)+" failed"+(scan ? " during scanning" : "")+"!!! (wrong token)");
+				break;
+			default:
+				return;
+		}
+		statusLabel.setBackground(Color.RED);
+		statusLabel.setForeground(Color.WHITE);
+	}
+}

@@ -28,7 +28,7 @@ SuperSerial-Active consists of two components, an extender to be loaded into Bur
 
 5. Load the superserial-active-[VERSION].jar file into Burp in the Extender tab. The SuperSerial-Active extender will be loaded but will need to be configured before it can be used.
 
-6. Configure extender in the SuperSerial tab.
+6. Configure Node connection settings in the SuperSerial->"Node Connection Settings" tab.
 
 	a. Set the Node Host. It must be set as the domain name or IP address that the target system will use to access the Node
 
@@ -40,16 +40,27 @@ SuperSerial-Active consists of two components, an extender to be loaded into Bur
 
 	d. Click "Test Connection" and verify that the status pane indicates a successful connection, or change the settings based on the status pane message.
 
-	e. Configure download attempts and wait time:
+7. Configure Active Scan settings in the SuperSerial->"Scan Settings" tab.
+
+	a. If desired, set the "Scan All" setting to scan all request parameters during active scanning.
+		
+		* WARNING: This will GREATLY increase the overall scan time per URL. Only enable this setting if needed.
+	
+	b. Configure download attempts and wait time:
 
 		* After sending the serialized object exploit payload the extender accesses the node a maximum number of tries (5 by default), waiting a specified amount of time between each try (1.5 seconds by default).
 		* Setting low values will allow the Active Scanner to finish more quickly but will increase the likelyhood of failing to detect the vulnerability, therefore higher values are recommended.
+	
+	c. Review the operating system commands listed that will be used during Active Scanning.
+		
+		* Additional commands can be added to the list that will be used during scanning. In order to detect the vulnerability, the added command must force the target system to access the Node via HTTP. Additional details about adding new commands coming soon!
+		* Commands are used during active scanning in the order they are listed in the table (top to bottom). 
+	
+8. Change filters in the Proxy and Target tabs to display "Other Binary". This will ensure any Scan Issues created by the extender will be displayed to the user.
 
-7. Change filters in the Proxy and Target tabs to display "Other Binary". This will ensure any Scan Issues created by the extender will be displayed to the user.
+9. Perform an active scan against any suspected vulnerable URLs. Additionally, the user can view the console output of the SuperSerial Node during the scan to view messages indicating any communication with the Node as it occurs, as well as to diagnose any potential issues.
 
-8. Perform an active scan against any suspected vulnerable URLs. Additionally, the user can view the console output of the SuperSerial Node during the scan to view messages indicating any communication with the Node as it occurs, as well as to diagnose any potential issues.
-
-9. If a vulnerability is detected by the SuperSerial-Active extender, a new "Java Deserialization Vulnerability" Scan Issue will be created in Burp Suite. 
+10. If a vulnerability is detected by the SuperSerial-Active extender, a new "Java Deserialization Vulnerability" Scan Issue will be created in Burp Suite. 
 
 ## Extender Dependencies:
 
@@ -92,7 +103,7 @@ Requires Java Development Kit 7 or higher
 
 10. Remove folder c:\test\api, it is no longer needed
 
-11. Download latest ysoserial (https://github.com/frohoff/ysoserial) release jar (ysoserial-0.0.2-all.jar at time of writing) to c:\test
+11. Download ysoserial (https://github.com/frohoff/ysoserial) release jar (ysoserial-0.0.2-all.jar at time of writing) to c:\test
 
 12. Extract ysoserial jar to c:\test\build-extender folder:
 
@@ -104,7 +115,7 @@ Requires Java Development Kit 7 or higher
 
 	a. In a terminal window, navigate to c:\test
 	
-	b. execute command: javac -cp build-extender -d build-extender -sourcepath SuperSerial-Active-master/Extender SuperSerial-Active-master/Extender/burp/*.java
+	b. execute command: javac -cp build-extender -d build-extender -sourcepath SuperSerial-Active-master/Extender SuperSerial-Active-master/Extender/burp/*.java SuperSerial-Active-master/Extender/superserial/settings/*.java SuperSerial-Active-master/Extender/superserial/ui/*.java SuperSerial-Active-master/Extender/ysoserial/*.java
 	
 	c. execute command: jar vcf superserial-active.jar -C build-extender . -C SuperSerial-Active-master/Extender licenses/JSON-LICENSE.txt -C SuperSerial-Active-master/Extender licenses/YSOSERIAL-LICENSE.txt
 	
@@ -114,7 +125,7 @@ Requires Java Development Kit 7 or higher
 	
 	b. execute command: javac -d build-node -sourcepath SuperSerial-Active-master/Node SuperSerial-Active-master/Node/superserial/node/*.java
 	
-	c. execute command: jar vcfm SuperSerialNode.jar SuperSerial-Active-master/Node/MF.TXT -C build-node . -C SuperSerial-Active-Master/Node JSON-LICENSE.txt
+	c. execute command: jar vcfm SuperSerialNode.jar SuperSerial-Active-master/Node/MF.TXT -C build-node . -C SuperSerial-Active-master/Node JSON-LICENSE.txt
 
 
 ## Disclaimer:
