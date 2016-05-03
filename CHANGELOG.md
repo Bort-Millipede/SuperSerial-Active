@@ -1,5 +1,12 @@
 # Change Log
 
+## [0.3.1] (2016-5-3)
+### Fixed
+- Node: Uploaded file/access entry directory now saves to correct location on *nix systems.
+
+### Changed
+- CHANGELOG.md: Updated
+
 ## [0.3] (2016-3-10)
 ### Fixed
 - Node: Standardized output of failed requests ("XXX request denied ...")

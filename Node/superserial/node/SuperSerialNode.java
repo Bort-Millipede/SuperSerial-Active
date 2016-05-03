@@ -1,7 +1,7 @@
 /*
 	SuperSerialNode.java
 	
-	v0.3 (3/10/2016)
+	v0.3.1 (5/3/2016)
 	
 	Node for SuperSerial Active Scan check to use. The active scan check will first make a GET request to the /queue context which will create a new custom
 	context (SuperSerialNodeHttpHandler.java) with a randomly-generated path, which will be returned in a JSON object in the response. The Active Scan check 
@@ -34,7 +34,7 @@ public class SuperSerialNode {
 	private SecureRandom sr;
 	private String dir;
 	
-	private static final String VERSION = "0.3";
+	private static final String VERSION = "0.3.1";
 	private static final int DEFAULT_PORT = 15050;
 	
 	public SuperSerialNode(int p) {
@@ -56,7 +56,7 @@ public class SuperSerialNode {
 		token = generateGUID();
 		
 		//create directory to store uploaded files/access entries (if not already created)
-		dir = System.getProperty("java.io.tmpdir")+"SuperSerial"+System.getProperty("file.separator");
+		dir = System.getProperty("java.io.tmpdir")+System.getProperty("file.separator")+"SuperSerial"+System.getProperty("file.separator");
 		File targetDir = new File(dir);
 		if(!targetDir.exists()) {
 			targetDir.mkdir();
