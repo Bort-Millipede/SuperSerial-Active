@@ -1,7 +1,7 @@
 /*
 	ConnectionSettingsTab.java
 	
-	v0.3 (3/10/2016)
+	v0.4 (7/27/2016)
 	
 	UI Component for the "Node Connection Settings" configuration tab under the SuperSerial tab. Allows the user to set the necessary Node connection settings (node host, node 
 	port, node protocol (HTTP/HTTPS), and node authentication token). Also allows the user to test the connection from the SuperSerial-Active extender to the Node (user must 
@@ -27,6 +27,9 @@ import burp.IExtensionHelpers;
 import burp.IHttpService;
 import burp.IHttpRequestResponse;
 import burp.IResponseInfo;
+
+import org.json.JSONObject;
+import org.json.JSONException;
 import superserial.settings.SuperSerialSettings;
 
 class ConnectionSettingsTab extends JPanel {
@@ -48,10 +51,15 @@ class ConnectionSettingsTab extends JPanel {
 	static final int INVALID_TOKEN_CODE = 2;
 	static final int CONN_ERROR_CODE = 3;
 	static final int AUTH_ERROR_CODE = 4;
+	static final int NOT_NODE_ERROR_CODE = 5;
+	private static final String nodeMessage = "They got attacked by Manbearpig and Manbearpig leaves no one alive, I\'m SuperSerial!";
 	
 	
 	ConnectionSettingsTab(IBurpExtenderCallbacks cb) {
 		super(new GridLayout(5,2));
+		
+		callbacks = cb;
+		helpers = cb.getHelpers();
 		
 		SuperSerialSettings settings = SuperSerialSettings.getInstance();
 		
@@ -121,12 +129,45 @@ class ConnectionSettingsTab extends JPanel {
 							respInfo = helpers.analyzeResponse(resp);
 						if((resp!=null) && (respInfo!=null)) {
 							if(respInfo.getStatusCode()==200) {
-								statusLabel.setBackground(Color.GREEN);
-								statusLabel.setForeground(Color.BLACK);
-								statusLabel.setText("Connection to http"+(https ? "s" : "")+"://"+host+":"+Integer.toString(port)+" successful!");
+								//copy response data to string for checking
+								int dataStart = respInfo.getBodyOffset();
+								byte[] dataArray = new byte[resp.length-dataStart];
+								int i=dataStart;
+								int j=0;
+								while(i<resp.length) {
+									dataArray[j] = resp[i];
+									i++;
+									j++;
+								}
+								String data = new String(dataArray);
 								
-								SuperSerialSettings settings = SuperSerialSettings.getInstance();
-								settings.setNodeSettings(host,port,https,tk);
+								//parse response JSON
+								JSONObject jsonObj = new JSONObject(data);
+								String message = null;
+								String version = null;
+								try {
+									message = (String) jsonObj.get("message");
+								} catch(JSONException jse) {
+									//don't care right now
+								}
+								try {
+									version = (String) jsonObj.get("version");
+								} catch(JSONException jse) {
+									//don't care right now
+								}
+								
+								if(message != null) { //check if there is a "message" JSON value. //EVENTUAL TODO: check if message is correct (remove backwards compatibility)
+									statusLabel.setBackground(Color.GREEN);
+									statusLabel.setForeground(Color.BLACK);
+									//statusLabel.setText("Connection to http"+(https ? "s" : "")+"://"+host+":"+Integer.toString(port)+" successful!");
+									statusLabel.setText("Connection to http"+(https ? "s" : "")+"://"+host+":"+Integer.toString(port)+" successful! ("+(version == null ? "Unknown" : version)+" version node detected)");
+									
+									SuperSerialSettings settings = SuperSerialSettings.getInstance();
+									settings.setNodeSettings(host,port,https,tk);
+									
+								} else {
+									setStatusError(NOT_NODE_ERROR_CODE,host,port,https,false);
+								}
 							} else {
 								setStatusError(AUTH_ERROR_CODE,host,port,https,false);
 							}
@@ -149,9 +190,6 @@ class ConnectionSettingsTab extends JPanel {
 		statusLabel.setBackground(Color.RED);
 		statusLabel.setFont(new Font(statusLabel.getFont().getFontName(),Font.BOLD,statusLabel.getFont().getSize()));
 		add(statusLabel);
-		
-		callbacks = cb;
-		helpers = cb.getHelpers();
 	}
 	
 	void setStatusError(int errCode) {
@@ -174,6 +212,9 @@ class ConnectionSettingsTab extends JPanel {
 				break;
 			case AUTH_ERROR_CODE:
 				statusLabel.setText("Connection to http"+(https ? "s" : "")+"://"+host+":"+Integer.toString(port)+" failed"+(scan ? " during scanning" : "")+"!!! (wrong token)");
+				break;
+			case NOT_NODE_ERROR_CODE:
+				statusLabel.setText("Connection to http"+(https ? "s" : "")+"://"+host+":"+Integer.toString(port)+" failed"+(scan ? " during scanning" : "")+"!!! (not a SuperSerial Node)");
 				break;
 			default:
 				return;

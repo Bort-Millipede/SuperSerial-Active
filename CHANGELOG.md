@@ -1,8 +1,42 @@
 # Change Log
 
+## [0.4] (2016-7-XX)
+### Added
+- Extender: Support for >=ysoserial-0.0.3
+- Extender: Configuration checkboxes under "Scan Settings" to enable/disable ysoserial payload types
+- Extender: Checking version of connected SuperSerial Node (via heartbeat request) and displaying in SuperSerial->"Node Connection Settings" tab
+- Extender: Removal of generated context on Node (via DELETE request) after active scan where no vulnerability is identified
+- Node: Include version information in responses to heartbeat requests
+- Node: Output when context is removed (via DELETE request)
+- Node: Token command line argument: use inputted token as authentication token
+- Node: Resume capability: execute node and re-create contexts from previous executions by reading temporary files; enabled via --resume command line option
+- Node: Help printout describing different command-line arguments
+
+### Fixed
+- Extender: Commands table in SuperSerial->"Scan Settings" tab can now be repopulated after all commands have been removed.
+- Node: class imports in SuperSerialNodeHelper class (changed from * to specific classes)
+
+### Changed
+- Extender: Updated JSON for Java to version 20160212
+- Node: Updated JSON for Java to version 20160212
+- Node: Format of command-line arguments (--arg=val)
+- Node: Message included in responses to heartbeat requests (South Park quote)
+- Node: Filename format for temporary files storing uploaded files (SuperSerial-UF-[NODEPATH].tmp) and access entries (SuperSerial-AE-[NODEPATH].tmp)
+- Node: Moved bytes-to-hex converstion method to SuperSerialNodeHelper class
+- README.md: Updated Extender Description
+- README.md: Updated Extender Overview
+- README.md: Updated Extender Configuration/Usage (Node command-line arguments, loading ysoserial via Burp settings, enabling/disabling payload types, adding/editing commands)
+- README.md: Updated Extender Dependencies
+- README.md: Updated Extender Building Instructions
+- CHANGELOG.md: Updated
+
+### Removed
+- Extender: Requirement to recompile ysoserial and package it with the Extender (Extender/ysoserial/GeneratePayload.java)
+- Extender: ysoserial license (due to above) (Extender/licenses/YSOSERIAL-LICENSE.TXT)
+
 ## [0.3.1] (2016-5-3)
 ### Fixed
-- Node: Uploaded file/access entry directory now saves to correct location on *nix systems.
+- Node: Uploaded file/access entries now saved to correct directory on *nix systems.
 
 ### Changed
 - CHANGELOG.md: Updated

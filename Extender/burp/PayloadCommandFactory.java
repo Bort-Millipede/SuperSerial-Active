@@ -1,7 +1,7 @@
 /*
 	PayloadCommandFactory.java
 	
-	v0.3 (3/10/2016)
+	v0.4 (7/27/2016)
 	
 	Maintains a list of Hashtables containing skeleton commands to be run on a target system. Allows users to add their own commands, edit or delete existing commands, and
 	rearrange the order in which commands are stored in the List (and therefore testing during an Active Scan). Commands must include an interaction with the Node (currently 
@@ -128,7 +128,6 @@ public class PayloadCommandFactory {
 		cmd.put(HT_KEYS[2],p);
 		cmd.put(HT_KEYS[3],Boolean.toString(u));
 		commands.add(cmd);
-		//callbacks.printError("PayloadCommandFactory.add() called successfully");
 	}
 	
 	//edit command (by index) already stored within PayloadCommandFactory
@@ -158,7 +157,6 @@ public class PayloadCommandFactory {
 		cmd.put(HT_KEYS[2],p);
 		cmd.put(HT_KEYS[3],Boolean.toString(u));
 		commands.set(index,cmd);
-		//callbacks.printError("PayloadCommandFactory.edit() called successfully");
 	}
 	
 	//remove command (by index) from PayloadCommandFactory
@@ -166,7 +164,6 @@ public class PayloadCommandFactory {
 		Hashtable<String,String> c = null;
 		try {
 			c = commands.remove(index);
-			//callbacks.printError("PayloadCommandFactory.remove() called successfully");
 		} catch(IndexOutOfBoundsException ioobe) {
 			//invalid index provided: do nothing, simply return
 		}

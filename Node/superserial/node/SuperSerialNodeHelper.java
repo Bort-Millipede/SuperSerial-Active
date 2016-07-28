@@ -1,15 +1,17 @@
 /*
 	SuperSerialNodeHelper.java
 	
-	//PUT CORRECT VERSION/DATE HERE
-	v0.2.1 (1/25/2016)
+	v0.4 (7/27/2016)
 	
 	Class containing static methods to assist in various aspects of processing throughout the SuperSerial node.
 */
 
+//Possible TODO: make all methods package-restricted (no visibility modifier)
+
 package superserial.node;
 
-import java.util.*;
+import java.util.Date;
+import java.util.Hashtable;
 import java.text.SimpleDateFormat;
 
 public class SuperSerialNodeHelper {
@@ -45,4 +47,16 @@ public class SuperSerialNodeHelper {
 		SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
 		System.err.println(sdf.format(now)+": "+message);
 	}
+	
+	//convert byte array to hexadecimal string
+	public static String bytesToHex(byte[] bytes) {
+		final char[] hexArray = "0123456789ABCDEF".toCharArray();
+		char[] hexChars = new char[bytes.length*2];
+		for(int j=0;j<bytes.length;j++){
+			int v =bytes[j] & 0xFF;
+			hexChars[j*2]=hexArray[v>>>4];
+			hexChars[j*2+1]=hexArray[v&0x0F];
+		}
+		return new String(hexChars);
+    }
 }

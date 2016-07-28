@@ -1,15 +1,18 @@
 /*
 	SuperSerialSettings.java
 	
-	v0.3 (3/10/2016)
+	v0.4 (7/27/2016)
 	
 	Maintains the global settings utilized by the SuperSerial-Active extender in various areas. Includes Node connection settings and Active Scan related settings.
 */
 
 package superserial.settings;
 
+import burp.IBurpExtenderCallbacks;
+
 public class SuperSerialSettings {
 	private static SuperSerialSettings settings = null;
+	private IBurpExtenderCallbacks callbacks;
 	
 	//node setting fields
 	private String nodeHost;
@@ -27,7 +30,10 @@ public class SuperSerialSettings {
 	private static final int DEFAULT_DOWNLOAD_WAIT_TIME = 1500;
 	
 	//default constructor
-	private SuperSerialSettings() {
+	private SuperSerialSettings(IBurpExtenderCallbacks cb) {
+		callbacks = cb;
+		
+		//TODO: load saved settings from within IBurpExtenderCallbacks reference
 		nodeHost = null;
 		nodePort = -1;
 		nodeHttps = false;
@@ -38,26 +44,39 @@ public class SuperSerialSettings {
 		scanAll = false;
 	}
 	
+	
+	
 	//get SuperSerialSettings instance for use elsewhere
 	public static SuperSerialSettings getInstance() {
 		if(settings==null) {
-			settings = new SuperSerialSettings();
+			settings = new SuperSerialSettings(null);
+		}
+		return settings;
+	}
+	
+	//get SuperSerialSettings instance for use elsewhere
+	//only intended to be called from BurpExtender.registerExtenderCallbacks in order to set IBurpExtenderCallbacks reference accordingly
+	public static SuperSerialSettings getInstance(IBurpExtenderCallbacks cb) {
+		if(settings==null) {
+			settings = new SuperSerialSettings(cb);
 		}
 		return settings;
 	}
 	
 	//reset all settings back to default
 	public static SuperSerialSettings resetSettings() {
-		settings = new SuperSerialSettings();
+		settings = new SuperSerialSettings(null);
 		return settings;
 	}
 	
-	//set settings pertaining to Node connection
+	//set settings pertaining to Node connection, and save in Burp runtime settings
 	public void setNodeSettings(String host,int port,boolean https,String token) {
 		nodeHost = host;
 		nodePort = port;
 		nodeHttps = https;
 		nodeToken = token;
+		
+		//TODO: Save settings within IBurpExtenderCallbacks reference
 	}
 	
 	//set settings pertaining to Active Scanner
