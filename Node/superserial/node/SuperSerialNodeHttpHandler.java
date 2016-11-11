@@ -136,7 +136,7 @@ public class SuperSerialNodeHttpHandler implements HttpHandler {
 							//return failure response
 							retJson.put("status","Failure: file already uploaded");
 							jsonStr = retJson.toString();
-							SuperSerialNodeHelper.printLogEntry(method+" request from "+exchange.getRemoteAddress().getHostString()+" to "+path+" denied (file already uploaded)");
+							SuperSerialNodeHelper.printLogEntry(method+" request from "+exchange.getRemoteAddress().getHostString()+" to "+path+" denied (file already uploaded or access entry already written)");
 							Headers respHeaders = exchange.getResponseHeaders();
 							respHeaders.add("Content-Type","application/json");
 							exchange.sendResponseHeaders(500,jsonStr.length());
@@ -248,7 +248,7 @@ public class SuperSerialNodeHttpHandler implements HttpHandler {
 								//return failure response
 								retJson.put("status","Failure: file already uploaded");
 								jsonStr = retJson.toString();
-								SuperSerialNodeHelper.printLogEntry(method+"request from "+exchange.getRemoteAddress().getHostString()+" to "+path+" denied (file already uploaded or access entry already written)");
+								SuperSerialNodeHelper.printLogEntry(method+" request from "+exchange.getRemoteAddress().getHostString()+" to "+path+" denied (file already uploaded or access entry already written)");
 								Headers respHeaders = exchange.getResponseHeaders();
 								respHeaders.add("Content-Type","application/json");
 								exchange.sendResponseHeaders(500,jsonStr.length());

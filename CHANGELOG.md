@@ -1,6 +1,13 @@
 # Change Log
 
-## [0.4] (2016-7-XX)
+## [0.4.0.1] (2016-11-11)
+### Fixed
+- Node: Standardized all message printouts
+
+### Changed
+- README.md: Updated ysoserial URL
+
+## [0.4] (2016-7-27)
 ### Added
 - Extender: Support for >=ysoserial-0.0.3
 - Extender: Configuration checkboxes under "Scan Settings" to enable/disable ysoserial payload types
