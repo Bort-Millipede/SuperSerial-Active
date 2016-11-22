@@ -1,7 +1,7 @@
 /*
 	NodeScannerCheck.java
 	
-	0.5 (11/22/2016)
+	0.5.0.1 (11/22/2016)
 	
 	Active Scan check to detect Java Deserialization Remote Code Execution using the SuperSerial Node.
 */
@@ -181,7 +181,7 @@ public class NodeScannerCheck extends SuperSerialScannerCheck {
 						Iterator<String> expRespHeadersItr = expRespHeaders.iterator();
 						while(expRespHeadersItr.hasNext()) {
 							String header = expRespHeadersItr.next();
-							if(header!=null && header.contains(platform)) {
+							if(header!=null && platform!=null && header.contains(platform)) {
 								ind = header.indexOf(platform);
 								serverHeader = header.substring(ind);
 								break;

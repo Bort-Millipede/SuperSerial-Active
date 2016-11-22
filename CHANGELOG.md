@@ -1,6 +1,10 @@
 # Change Log
 
-## [0.5] (2016-11-22)
+## [0.5.0.1] (2016-11-22)
+### Fixed
+- Extender: minor bugfix in NodeScannerCheck.java to prevent scan from failing with all payload types enabled.
+
+## [0.5] (2016-11-21)
 ### Added
 - Extender: Support for vulnerability detection using Burp Collaborator (HTTP only, HTTPS and DNS not yet supported)
 - Extender: include parameter name in "Issue Detail" when payload is submitted via a paramter (ex. WebSphere)
