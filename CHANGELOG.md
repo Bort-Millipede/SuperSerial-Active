@@ -1,5 +1,30 @@
 # Change Log
 
+## [0.5] (2016-11-22)
+### Added
+- Extender: Support for vulnerability detection using Burp Collaborator (HTTP only, HTTPS and DNS not yet supported)
+- Extender: include parameter name in "Issue Detail" when payload is submitted via a paramter (ex. WebSphere)
+- Extender: Support for including the ysoserial payload type in the detection command
+- Extender: highlight index generation via InsertionPoint classes.
+- Extender: Separate class specifically for generating ysoserial payloads (to be used by all Burp tools)
+- Extender: Option in "Connection Settings" tab for Burp Collaborator or SuperSerial Node
+- Extender: Warning of connection to outdated SuperSerial Node
+- Extender: "Select All" and "Select None" buttons in "Scan Settings" tab for ysoserial payload types
+- Node: Support for accepting the name of the ysoserial payload type via URL parameter (technique)
+
+### Fixed
+- Node: Resume capability now saves upload time, upload source, and ysoserial payload type name correctly.
+
+### Changed
+- Extender: Changed version number to 0.5
+- Extender: Changed title of detected issue(s) to "Java Deserialization Remote Code Execution"
+- Extender: Changed default detection commands to include the ysoserial payload type in the requests
+- Extender: "Issue Remediation" section now includes links to actual remediation solutions.
+- Node: Changed version number to 0.5
+
+### Removed
+- Extender: Single general ScanIssue class (SerializationRCEExploitIssue.java), replaced by general abstract parent class and specific sub-classes
+
 ## [0.4.0.1] (2016-11-11)
 ### Fixed
 - Node: Standardized all message printouts

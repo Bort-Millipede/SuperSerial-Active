@@ -1,7 +1,7 @@
 /*
 	WebSphereSerializedInsertionPoint.java
 	
-	v0.2 (12/30/2015)
+	v0.5 (11/22/2015)
 	
 	Custom insertion point for Java Deserialization Remote Code Execution, specifically against the WebSphere platform. Accepts a serialized object containing
 	an operating system command from ysoserial, then base64-encodes the payload and adds it to a specified parameter in a request.
@@ -16,14 +16,15 @@ public class WebSphereSerializedInsertionPoint implements IScannerInsertionPoint
 	private IExtensionHelpers helpers;
 	private String paramName;
 	
-	public WebSphereSerializedInsertionPoint(IExtensionHelpers h,IHttpRequestResponse baseRR,String pn) {
+	public WebSphereSerializedInsertionPoint(IExtensionHelpers h,IHttpRequestResponse baseRR,String pn) { //TODO: pass in IBurpExtenderCallbacks rather than IExtensionHelpers
 		baseRequestResponse = baseRR;
-		baseValue = ""; //not sure what to do with this yet
+		baseValue = pn; //storing parameter name here, because not sure what to do with this
 		insertionPointName = "SuperSerial-WebSphere";
 		helpers = h;
 		paramName = pn;
 	}
 	
+	@Override
 	public byte[] buildRequest(byte[] payload) {
 		byte[] encodedPayload = helpers.base64Encode(payload).getBytes();
 		byte[] req = baseRequestResponse.getRequest();
@@ -33,7 +34,7 @@ public class WebSphereSerializedInsertionPoint implements IScannerInsertionPoint
 		byte paramType = param.getType();
 		if(paramType == IParameter.PARAM_URL || paramType == IParameter.PARAM_BODY || paramType == IParameter.PARAM_COOKIE) { //natively update parameter value
 			req = helpers.updateParameter(req,helpers.buildParameter(paramName,new String(helpers.urlEncode(encodedPayload)),paramType));
-		} else { //update parameter value by coping request to new array
+		} else { //update parameter value by copying request to new array
 			byte[] nReq = new byte[req.length-(paramEnd-paramStart)+encodedPayload.length];
 			int i=0;
 			while(i<paramStart) {
@@ -57,18 +58,22 @@ public class WebSphereSerializedInsertionPoint implements IScannerInsertionPoint
 		return req;
 	}
 	
+	@Override
 	public String getBaseValue() {
 		return baseValue;
 	}
 	
+	@Override
 	public String getInsertionPointName() {
 		return insertionPointName;
 	}
 	
+	@Override
 	public byte getInsertionPointType() {
 		return IScannerInsertionPoint.INS_EXTENSION_PROVIDED;
 	}
 	
+	@Override
 	public int[] getPayloadOffsets(byte[] payload) {
 		return null; //payload will be base64-encoded so return null; may implement something here in the future
 	}

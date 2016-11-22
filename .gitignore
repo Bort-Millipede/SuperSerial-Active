@@ -43,6 +43,8 @@ Temporary Items
 .apdisk
 
 # Burp Extender base APIs
+Extender/burp/IBurpCollaboratorClientContext.java
+Extender/burp/IBurpCollaboratorInteraction.java
 Extender/burp/IBurpExtender.java
 Extender/burp/IBurpExtenderCallbacks.java
 Extender/burp/IContextMenuFactory.java
@@ -69,6 +71,8 @@ Extender/burp/IParameter.java
 Extender/burp/IProxyListener.java
 Extender/burp/IRequestInfo.java
 Extender/burp/IResponseInfo.java
+Extender/burp/IResponseKeywords.java
+Extender/burp/IResponseVariations.java
 Extender/burp/IScanIssue.java
 Extender/burp/IScannerCheck.java
 Extender/burp/IScannerInsertionPoint.java

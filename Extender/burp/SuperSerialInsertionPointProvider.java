@@ -1,7 +1,7 @@
 /*
 	SuperSerialInsertionPointProvider.java
 	
-	v0.3 (3/10/2016)
+	v0.5 (11/22/2016)
 	
 	Custom scanner insertion point provider supplying active scanner insertion points for both the JBoss and WebSphere platforms. By default, this performs analysis on 
 	the inputted base HTTP request and response, and creates the appropriate scanner insertion points based on this analysis. The analysis consists of the following checks:
@@ -21,6 +21,7 @@ import java.util.Iterator;
 import superserial.settings.SuperSerialSettings;
 
 public class SuperSerialInsertionPointProvider implements IScannerInsertionPointProvider {
+	private IBurpExtenderCallbacks callbacks;
 	private IExtensionHelpers helpers;
 	private SuperSerialSettings settings;
 	
@@ -30,8 +31,9 @@ public class SuperSerialInsertionPointProvider implements IScannerInsertionPoint
 	private static final byte JAVA_OBJECT_3 = 0x05; //0x05
 	private static final String JAVA_64_START = "rO0AB"; //Possible TODO: add logic to detect different STREAM_VERSION headers (such as "rO0gB")
 	
-	public SuperSerialInsertionPointProvider(IExtensionHelpers h) {
-		helpers = h;
+	public SuperSerialInsertionPointProvider(IBurpExtenderCallbacks cb) {
+		callbacks = cb;
+		helpers = callbacks.getHelpers();
 		settings = SuperSerialSettings.getInstance();
 	}
 	

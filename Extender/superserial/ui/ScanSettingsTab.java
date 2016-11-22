@@ -27,6 +27,8 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.GridLayout;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.awt.event.ItemListener;
+import java.awt.event.ItemEvent;
 import java.util.Hashtable;
 
 import burp.IBurpExtenderCallbacks;
@@ -39,6 +41,8 @@ class ScanSettingsTab extends JPanel {
 	private JCheckBox scanAllField;
 	private JTextField numAttemptsField;
 	private JTextField waitTimeField;
+	private JButton typesAllButton;
+	private JButton typesNoneButton;
 	private JCheckBox[] typesFields;
 	private JButton cmdUpButton;
 	private JButton cmdDownButton;
@@ -123,6 +127,34 @@ class ScanSettingsTab extends JPanel {
 		});
 		add(waitTimeField);
 		
+		//create payload types label and buttons
+		JPanel typesButtonPanel = new JPanel(new GridLayout(3,1,3,0));
+		typesButtonPanel.add(new JLabel("Enabled ysoserial Payload Types:",SwingConstants.RIGHT));
+		typesAllButton = new JButton("Enable All");
+		typesAllButton.setActionCommand("Enable All");
+		typesNoneButton = new JButton("Enable None");
+		typesNoneButton.setActionCommand("Enable None");
+		ActionListener typeButtonAL = new ActionListener() {
+			public void actionPerformed(ActionEvent ae) {
+				switch(ae.getActionCommand()) {
+					case "Enable All":
+						for(int i=0;i<typesFields.length;i++) {
+							typesFields[i].setSelected(true);
+						}
+						break;
+					case "Enable None":
+						for(int i=0;i<typesFields.length;i++) {
+							typesFields[i].setSelected(false);
+						}
+						break;
+				}
+			}
+		};
+		typesAllButton.addActionListener(typeButtonAL);
+		typesNoneButton.addActionListener(typeButtonAL);
+		typesButtonPanel.add(typesAllButton);
+		typesButtonPanel.add(typesNoneButton);
+		
 		//create payload types checkbox grid
 		int typeCount = ptf.getTypesCount();
 		String[] types = ptf.getAllTypes();
@@ -132,17 +164,24 @@ class ScanSettingsTab extends JPanel {
 		GridLayout tcpGrid = new GridLayout(rowCount,4);
 		JPanel typesCheckPanel = new JPanel(tcpGrid);
 		typesFields = new JCheckBox[types.length];
-		ActionListener typeCheckBoxAL = new ActionListener() {
-			public void actionPerformed(ActionEvent ae) {
-				JCheckBox jcb = (JCheckBox) ae.getSource();
-				ptf.toggleType(jcb.getText(),jcb.isSelected());
+		ItemListener typeCheckBoxIL = new ItemListener() {
+			public void itemStateChanged(ItemEvent ie) {
+				JCheckBox jcb = (JCheckBox) ie.getItem();
+				switch(ie.getStateChange()) {
+					case ItemEvent.SELECTED:
+						ptf.toggleType(jcb.getText(),true);
+						break;
+					case ItemEvent.DESELECTED:
+						ptf.toggleType(jcb.getText(),false);
+						break;
+				}
 			}
 		};
 		int l=0;
 		//create checkboxes
 		for(int j=0;j<typesFields.length;j++) {
 			typesFields[j] = new JCheckBox(types[l++],false);
-			typesFields[j].addActionListener(typeCheckBoxAL);
+			typesFields[j].addItemListener(typeCheckBoxIL);
 		}
 		//check boxes for enabled types
 		types = ptf.getEnabledTypes();
@@ -160,7 +199,7 @@ class ScanSettingsTab extends JPanel {
 		}
 		
 		//add components to panel
-		add(new JLabel("Enabled ysoserial Payload Types:",SwingConstants.RIGHT));
+		add(typesButtonPanel);
 		add(typesCheckPanel);
 		
 		//create panel for buttons

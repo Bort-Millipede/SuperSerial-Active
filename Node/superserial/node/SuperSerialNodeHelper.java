@@ -32,7 +32,11 @@ public class SuperSerialNodeHelper {
 								params.put(paramName,paramSplit[1]);
 						}
 					} else if(paramName.equalsIgnoreCase("write")) {
-						if(!params.containsKey("write")) {
+						if(!params.containsKey("write")) { //check if param was already found
+							params.put(paramName,paramSplit[1]);
+						}
+					} else if(paramName.equalsIgnoreCase("technique")) {
+						if(!params.containsKey("technique")) { //check if param was already found
 							params.put(paramName,paramSplit[1]);
 						}
 					}

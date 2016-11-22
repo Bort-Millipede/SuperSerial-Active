@@ -1,7 +1,7 @@
 /*
 	SuperSerialSettings.java
 	
-	v0.4 (7/27/2016)
+	v0.5 (11/22/2016)
 	
 	Maintains the global settings utilized by the SuperSerial-Active extender in various areas. Includes Node connection settings and Active Scan related settings.
 */
@@ -15,6 +15,8 @@ public class SuperSerialSettings {
 	private IBurpExtenderCallbacks callbacks;
 	
 	//node setting fields
+	private boolean nodeCollaborator;
+	private boolean nodeIntegrated;
 	private String nodeHost;
 	private int nodePort;
 	private boolean nodeHttps;
@@ -26,6 +28,8 @@ public class SuperSerialSettings {
 	private boolean scanAll;
 	
 	//constants
+	private static final String TAB_CAPTION = "SuperSerial-Active";
+	private static final String EXTENDER_VERSION = "0.5"; //TODO: put this somewhere else
 	private static final int DEFAULT_DOWNLOAD_TRIES = 5;
 	private static final int DEFAULT_DOWNLOAD_WAIT_TIME = 1500;
 	
@@ -34,6 +38,8 @@ public class SuperSerialSettings {
 		callbacks = cb;
 		
 		//TODO: load saved settings from within IBurpExtenderCallbacks reference
+		nodeCollaborator = false;
+		nodeIntegrated = false;
 		nodeHost = null;
 		nodePort = -1;
 		nodeHttps = false;
@@ -69,10 +75,22 @@ public class SuperSerialSettings {
 		return settings;
 	}
 	
-	//set settings pertaining to Node connection, and save in Burp runtime settings
+	//set node collaborator setting
+	public void setNodeCollaborator(boolean collab) {
+		nodeCollaborator = collab;
+	}
+	
+	//set integrated node setting
+	public void setNodeIntegrated(boolean integrated) {
+		nodeIntegrated = integrated;
+	}
+	
+	//set settings pertaining to Node connection
 	public void setNodeSettings(String host,int port,boolean https,String token) {
 		nodeHost = host;
-		nodePort = port;
+		if(port>0 && port<65536) { //only set port if valid number is entered
+			nodePort = port;
+		}
 		nodeHttps = https;
 		nodeToken = token;
 		
@@ -87,7 +105,29 @@ public class SuperSerialSettings {
 	}
 	
 	
+	//config tab accessors
+	//get tab title
+	public String getTabCaption() {
+		return TAB_CAPTION;
+	}
+	
+	//get current SuperSerial extender version
+	public String getVersion() {
+		return EXTENDER_VERSION;
+	}
+	
+	
 	//node connection settings accessors
+	//get "Use Burp Collaborator" setting
+	public boolean getNodeCollaborator() {
+		return nodeCollaborator;
+	}
+	
+	//get "Use Integrated Node" setting
+	public boolean getNodeIntegrated() {
+		return nodeIntegrated;
+	}
+	
 	//get node host
 	public String getNodeHost() {
 		return nodeHost;

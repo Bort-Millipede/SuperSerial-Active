@@ -12,9 +12,8 @@ package superserial.ui;
 import javax.swing.JTabbedPane;
 import java.awt.Component;
 import burp.IBurpExtenderCallbacks;
-import burp.ITab;
 
-public class SuperSerialConfigTab extends JTabbedPane implements ITab {
+public class SuperSerialConfigTab extends JTabbedPane {
 	private IBurpExtenderCallbacks callbacks;
 	
 	//ITab fields
@@ -45,17 +44,5 @@ public class SuperSerialConfigTab extends JTabbedPane implements ITab {
 	
 	public void setStatusError(int errCode,String host,int port,boolean https,boolean scan) {
 		connSettingsTab.setStatusError(errCode,host,port,https,scan);
-	}
-	
-	
-	//ITab methods
-	@Override
-	public String getTabCaption() {
-		return caption;
-	}
-	
-	@Override
-	public Component getUiComponent() {
-		return this;
 	}
 }

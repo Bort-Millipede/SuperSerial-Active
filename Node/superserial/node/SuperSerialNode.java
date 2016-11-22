@@ -39,7 +39,7 @@ public class SuperSerialNode {
 	private SecureRandom sr;
 	private String dir;
 	
-	private static final String VERSION = "0.4";
+	private static final String VERSION = "0.5";
 	private static final int DEFAULT_PORT = 15050;
 	
 	public SuperSerialNode(int p,String tk,boolean rs) {
